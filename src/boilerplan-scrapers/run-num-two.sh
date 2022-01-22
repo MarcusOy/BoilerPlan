@@ -1,0 +1,1 @@
+nohup node --experimental-json-modules ./2.get-all-course-details.js
