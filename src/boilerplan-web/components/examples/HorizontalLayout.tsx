@@ -8,26 +8,25 @@ import ReactFlow, {
   MiniMap,
   Controls,
   Background,
+  Handle,
 } from "react-flow-renderer";
 
 const onLoad = (reactFlowInstance) => reactFlowInstance.fitView();
-
-const onNodeMouseEnter = (event, node) => console.log("mouse enter:", node);
-const onNodeMouseMove = (event, node) => console.log("mouse move:", node);
-const onNodeMouseLeave = (event, node) => console.log("mouse leave:", node);
-const onNodeContextMenu = (event, node) => {
-  event.preventDefault();
-  console.log("context menu:", node);
-};
 
 const initialElements: Elements<any> = [
   {
     id: "horizontal-1",
     sourcePosition: Position.Right,
-    type: "input",
+    type: "course",
     className: "dark-node",
-    data: { label: "CNIT 100" },
+    data: { label: "CNIT 10000" },
     position: { x: 0, y: 80 },
+    style: {
+      background: "var(--🗿-colors-gray-600)",
+      padding: 10,
+      borderRadius: 10,
+      cursor: "pointer",
+    },
   },
   {
     id: "horizontal-2",
@@ -131,43 +130,30 @@ const initialElements: Elements<any> = [
 
 const HorizontalFlow = () => {
   const [elements, setElements] = useState(initialElements);
-  const onElementsRemove = (elementsToRemove) =>
-    setElements((els) => removeElements(elementsToRemove, els));
-  const onConnect = (params) => setElements((els) => addEdge(params, els));
-  const changeClassName = () => {
-    setElements((elms) =>
-      elms.map((el) => {
-        if (el.type === "input") {
-          el.className = el.className ? "" : "dark-node";
-        }
 
-        return { ...el };
-      })
-    );
-  };
+  const onElementClick = (event, node) => console.log("mouse click:", node);
+  const onNodeMouseEnter = (event, node) => console.log("mouse enter:", node);
+  const onNodeMouseLeave = (event, node) => console.log("mouse leave:", node);
 
   return (
-    <div style={{ height: "100vh" }}>
+    <div style={{ height: "100%" }}>
       <ReactFlow
         elements={elements}
-        onElementsRemove={onElementsRemove}
-        onConnect={onConnect}
         onLoad={onLoad}
         selectNodesOnDrag={false}
+        onElementClick={onElementClick}
         onNodeMouseEnter={onNodeMouseEnter}
-        onNodeMouseMove={onNodeMouseMove}
         onNodeMouseLeave={onNodeMouseLeave}
-        onNodeContextMenu={onNodeContextMenu}
+        nodesDraggable={false}
+        nodesConnectable={false}
       >
-        <MiniMap />
-        <Controls />
+        {/* <MiniMap
+          style={{
+            background: "var(--🗿-colors-gray-600)",
+          }}
+        /> */}
+        {/* <Controls /> */}
         <Background />
-        <button
-          onClick={changeClassName}
-          style={{ position: "absolute", right: 10, top: 30, zIndex: 4 }}
-        >
-          change class name
-        </button>
       </ReactFlow>
     </div>
   );
