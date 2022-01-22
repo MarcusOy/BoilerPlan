@@ -1,12 +1,13 @@
 import puppeteer from "puppeteer";
 import fs from "fs";
 
+const browser = await puppeteer.launch({ headless: false, slowMo: 10 });
+
 async function timeout(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-(async () => {
-  const browser = await puppeteer.launch({ headless: false, slowMo: 10 });
+const login = async () => {
   const page = await browser.newPage();
 
   // Navigate to login page and login
@@ -15,6 +16,10 @@ async function timeout(ms) {
   await page.type("#password", "9482,push");
   await page.click("input[type=submit]");
   await page.waitForResponse((response) => response.ok());
+};
+
+const scrape = async (term, filename) => {
+  const page = await browser.newPage();
 
   // Redirect to Lookup classes Self Service
   await page.goto(
@@ -23,7 +28,7 @@ async function timeout(ms) {
   await page.waitForResponse((response) => response.ok());
 
   // Select term page and select Spring 2022
-  await page.select("select", "202220");
+  await page.select("select", term);
   var [_, submitButton] = await page.$$("input[type=submit]");
   await submitButton.click();
   await page.waitForResponse((response) => response.ok());
@@ -62,10 +67,8 @@ async function timeout(ms) {
 
   await console.log(allCourses);
 
-  await browser.close();
-
   fs.writeFile(
-    "./src/boilerplan-scrapers/courselist.json",
+    `./src/boilerplan-scrapers/${filename}`,
     JSON.stringify(allCourses),
     function (err) {
       if (err) {
@@ -74,4 +77,28 @@ async function timeout(ms) {
       console.log("The file was saved!");
     }
   );
-})();
+};
+
+await login();
+await scrape("202210", "fall-courselist.json");
+await scrape("202220", "spring-courselist.json");
+await scrape("202230", "summer-courselist.json");
+
+await browser.close();
+
+import fall from "./fall-courselist.json";
+import spring from "./spring-courselist.json";
+import summer from "./summer-courselist.json";
+
+let distinctUnion = [...new Set([...fall, ...spring, ...summer])];
+
+fs.writeFile(
+  `./src/boilerplan-scrapers/all-courses.json`,
+  JSON.stringify(distinctUnion),
+  function (err) {
+    if (err) {
+      return console.log(err);
+    }
+    console.log("The file was saved!");
+  }
+);

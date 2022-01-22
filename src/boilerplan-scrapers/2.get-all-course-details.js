@@ -3,9 +3,12 @@ import axios from "axios";
 import qs from "qs";
 import convert from "xml-js";
 import getUuid from "uuid-by-string";
-import fs from 'fs';
+import fs from "fs";
 
-import courses from "./courselist.json";
+import courses from "./all-courses.json";
+import fall from "./fall-courselist.json";
+import spring from "./spring-courselist.json";
+import summer from "./summer-courselist.json";
 
 const timeout = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,7 +32,8 @@ const scrapeCourse = async (subj, num) => {
     url: "https://mypurdueplan.purdue.edu/dashboard/dashboard",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Cookie: "JSESSIONID=54A6C8A03FA71DADC3CBF60D2A19C61E; NAME=Marcus%20A%20Orciuch; REFRESH_TOKEN=Bearer+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMzEzNjc1NzQiLCJpbnRlcm5hbElkIjoiMDMxMzY3NTc0IiwidXNlckNsYXNzIjoiU1RVIiwiYXBwTmFtZSI6ImRlZ3JlZXdvcmtzIiwibmFtZSI6Ik9yY2l1Y2gsIE1hcmN1cyBBIiwiZXhwaXJlSW5jcmVtZW50U2Vjb25kcyI6NzIwMCwiZXhwIjoxNjQyOTIyODM4LCJhbHRJZCI6IjAwMzEzNjc1NzQiLCJpYXQiOjE2NDI4Mzg4MzgsImp0aSI6ImY3NmY2ZTMwLTgwNTktNDY4Zi05NGM5LWY4OThmZWIwODRmMyJ9.QOSxZCipkf6OeDsRNFRWdCwjlZS7RtqRlzf2pMQwCGI; DGW_BigIP_Cookie=!Rb7bqn5FuxxLJRh3ZAchGuGk1L0Wom4tVfr8JIGeNNyQlmJyd6FJTh1Yq4jaVGBYjjUcbqPzynGCeg==; X-AUTH-TOKEN=Bearer+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMzEzNjc1NzQiLCJpbnRlcm5hbElkIjoiMDMxMzY3NTc0IiwidXNlckNsYXNzIjoiU1RVIiwiYXBwTmFtZSI6ImRlZ3JlZXdvcmtzIiwicm9sZXMiOlsiU0VQUFRNT0QiLCJTREdQQUNMQyIsIlNER1BBR1JEIiwiU0RXSEFUSUYiLCJTRVBQRURJVCIsIlNFUFBURU1QIiwiU0VQUFRERUwiLCJTRVBWQVVEIiwiU0RYTUwzMSIsIlJTUExBTiIsIlNFUFBBVUQiLCJTRVBQUlFFRCIsIlNFUFBSUUFEIiwiUlNTRVRUTkciLCJTRVBQTEFOIiwiU0VQUFNFTCIsIlNEU1RVTUUiLCJTRVBQVEFERCIsIlNFUFBBREQiLCJTREFVRElUIiwiU0VQUE1PRCIsIlNFUFZDQUwiLCJTREFVRFJFViIsIlNEV09SS1MiLCJTREFVRFBERiIsIlNETE9LQUhEIiwiU0RXRUIzMSIsIlNFUFBSUURMIiwiU0RHUEFBRFYiLCJTRVBQQ09NUCIsIlNER1BBVFJNIiwiU0RXRUIzNiJdLCJuYW1lIjoiT3JjaXVjaCwgTWFyY3VzIEEiLCJkZXBhcnRtZW50cyI6W10sImV4cCI6MTY0Mjg0NjE3NywiYWx0SWQiOiIwMDMxMzY3NTc0IiwiaWF0IjoxNjQyODM4OTc3LCJqdGkiOiJhNWEzMjIwZC01YjU0LTQ0NDQtODc3MS1mYTg3MmIwMDI5OWEifQ.C6BQNLsr0MWxXoBX8j77hXWBrPST5PZ6T2oUxotmB84",
+      Cookie:
+        "JSESSIONID=54A6C8A03FA71DADC3CBF60D2A19C61E; NAME=Marcus%20A%20Orciuch; REFRESH_TOKEN=Bearer+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMzEzNjc1NzQiLCJpbnRlcm5hbElkIjoiMDMxMzY3NTc0IiwidXNlckNsYXNzIjoiU1RVIiwiYXBwTmFtZSI6ImRlZ3JlZXdvcmtzIiwibmFtZSI6Ik9yY2l1Y2gsIE1hcmN1cyBBIiwiZXhwaXJlSW5jcmVtZW50U2Vjb25kcyI6NzIwMCwiZXhwIjoxNjQyOTQ3OTIyLCJhbHRJZCI6IjAwMzEzNjc1NzQiLCJpYXQiOjE2NDI4NjM5MjIsImp0aSI6ImQ2Mzc5OWQ0LTQ3NzEtNGYyYy04YjZmLTUwYTEzYjY1ZjMyMyJ9.63Tkg_HrdYQtkZG9qkCKRxxFpf_cpaCXkmxNX5m_Vpg; DGW_BigIP_Cookie=!JdBsdRyNW0t7p5J3ZAchGuGk1L0WordWRRt/oxOVFvQbVG0Wz97v3zp2h69DEPsbt5WjcGiHCV7JnQ==; X-AUTH-TOKEN=Bearer+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMzEzNjc1NzQiLCJpbnRlcm5hbElkIjoiMDMxMzY3NTc0IiwidXNlckNsYXNzIjoiU1RVIiwiYXBwTmFtZSI6ImRlZ3JlZXdvcmtzIiwicm9sZXMiOlsiU0VQUFRNT0QiLCJTREdQQUNMQyIsIlNER1BBR1JEIiwiU0RXSEFUSUYiLCJTRVBQRURJVCIsIlNFUFBURU1QIiwiU0VQUFRERUwiLCJTRVBWQVVEIiwiU0RYTUwzMSIsIlJTUExBTiIsIlNFUFBBVUQiLCJTRVBQUlFFRCIsIlNFUFBSUUFEIiwiUlNTRVRUTkciLCJTRVBQTEFOIiwiU0VQUFNFTCIsIlNEU1RVTUUiLCJTRVBQVEFERCIsIlNFUFBBREQiLCJTREFVRElUIiwiU0VQUE1PRCIsIlNFUFZDQUwiLCJTREFVRFJFViIsIlNEV09SS1MiLCJTREFVRFBERiIsIlNETE9LQUhEIiwiU0RXRUIzMSIsIlNFUFBSUURMIiwiU0RHUEFBRFYiLCJTRVBQQ09NUCIsIlNER1BBVFJNIiwiU0RXRUIzNiJdLCJuYW1lIjoiT3JjaXVjaCwgTWFyY3VzIEEiLCJkZXBhcnRtZW50cyI6W10sImV4cCI6MTY0Mjg3MzQ2MywiYWx0SWQiOiIwMDMxMzY3NTc0IiwiaWF0IjoxNjQyODY2MjYzLCJqdGkiOiJjMDFmNTZmNi1kMDE0LTQyMTktODQxZC0zZWNiYThiYTg4NzAifQ.VoUhQZuEMPjCGcbX7b71lGN59kg82pAlooQtY6X-p-0",
       Origin: "https://mypurdueplan.purdue.edu",
     },
     data: qs.stringify(data),
@@ -59,9 +63,13 @@ const scrapeCourse = async (subj, num) => {
       alwaysArray: ["Prereq"],
     });
 
-    var uuid = getUuid(
-      `${convertedBody.CourseInformation.Course._attributes.SubjCode} ${convertedBody.CourseInformation.Course._attributes.CrseNumb}`
-    );
+    var courseName = `${convertedBody.CourseInformation.Course._attributes.SubjCode} ${convertedBody.CourseInformation.Course._attributes.CrseNumb}`;
+    var uuid = getUuid(courseName);
+    var offered = [];
+    if (fall.indexOf(courseName) >= 0) offered.push("Fall");
+    if (spring.indexOf(courseName) >= 0) offered.push("Spring");
+    if (summer.indexOf(courseName) >= 0) offered.push("Summer");
+
     var result = {
       id: uuid,
       subject: convertedBody.CourseInformation.Course._attributes.SubjCode,
@@ -74,6 +82,7 @@ const scrapeCourse = async (subj, num) => {
           /\n/g,
           ""
         ),
+      offered: offered.join(","),
     };
     var edges = [];
 
@@ -102,7 +111,7 @@ let data = {
   courseNodes: [],
   courseEdges: [],
 };
-for (let x = 0; x < courses.length; x++) {
+for (let x = 0; x < 10; x++) {
   let [subj, num] = courses[x].split(" ");
   let { result, edges } = await scrapeCourse(subj, num);
   data.courseNodes.push(result);
@@ -111,7 +120,7 @@ for (let x = 0; x < courses.length; x++) {
 }
 
 fs.writeFile(
-  "detailedcourses.json",
+  "./src/boilerplan-scrapers/detailedcourses.json",
   JSON.stringify(data),
   function (err) {
     if (err) {
