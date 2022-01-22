@@ -1,4 +1,9 @@
 import puppeteer from "puppeteer";
+import fs from "fs";
+
+async function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false, slowMo: 10 });
@@ -38,21 +43,35 @@ import puppeteer from "puppeteer";
   await page.waitForResponse((response) => response.ok());
 
   // Scrape all displayed courses
-  await page.waitForSelector(".datadisplaytable");
+  await page.waitForSelector(".datadisplaytable tbody tr th");
+  await timeout(10000);
+
   let allCourses = await page.$$eval("table", (tables) => {
     let courses = [];
     tables.map((t) => {
       let [term, subject, ...classes] = t.querySelectorAll("tbody tr");
-      // let subjectCode = subject.innerText.split("-")[0];
-      let subjectCode = "XX";
+      if (subject == undefined || subject.querySelector("th") == null) return;
+      let subjectCode = subject.querySelector("th").innerText.split("-")[0];
       let c = classes.map(
         (tr) => `${subjectCode} ${tr.querySelector("td").innerText}`
       );
-      courses.push(c);
+      courses.push(...c);
     });
     return courses;
   });
+
   await console.log(allCourses);
 
   await browser.close();
+
+  fs.writeFile(
+    "./src/boilerplan-scrapers/courselist.json",
+    JSON.stringify(allCourses),
+    function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log("The file was saved!");
+    }
+  );
 })();

@@ -9,8 +9,9 @@
       "type": "node",
       "request": "launch",
       "args": ["${relativeFile}"],
+      "runtimeArgs": ["--experimental-json-modules"],
       // "runtimeArgs": ["-r", "ts-node/register"],
-      "cwd": "${workspaceRoot}/src/scrapers",
+      // "cwd": "${workspaceRoot}/src/boilerplan-scrapers",
       "protocol": "inspector",
       "internalConsoleOptions": "openOnSessionStart"
     }
