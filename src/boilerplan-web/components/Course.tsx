@@ -26,18 +26,19 @@ export interface ICourse {
   offered: string;
 }
 
-const Course = () => {
+export const exampleCourse: ICourse = {
+  id: "12af1a7a-257d-5160-86cb-e367edd43b6d",
+  subject: "AAE",
+  number: 20300,
+  title: "Aeromechanics I",
+  description:
+    "Credit Hours: 3.00.  Fundamental concepts and principles of bodies in motion, with applications to aeronautical and astronautical problems. Subjects covered include rectilinear motion, curvilinear motion, rotation, and plane motion. The static equilibrium and quasistatic equilibrium situations are treated as a part of motion in which the acceleration is zero. Problems involving impact, separation, work, and energy are considered.",
+  creditHours: 3,
+  offered: "Fall,Spring,Summer",
+};
+
+const Course = (c: ICourse) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  var c: ICourse = {
-    id: "12af1a7a-257d-5160-86cb-e367edd43b6d",
-    subject: "AAE",
-    number: 20300,
-    title: "Aeromechanics I",
-    description:
-      "Credit Hours: 3.00.  Fundamental concepts and principles of bodies in motion, with applications to aeronautical and astronautical problems. Subjects covered include rectilinear motion, curvilinear motion, rotation, and plane motion. The static equilibrium and quasistatic equilibrium situations are treated as a part of motion in which the acceleration is zero. Problems involving impact, separation, work, and energy are considered.",
-    creditHours: 3,
-    offered: "Fall,Spring,Summer",
-  };
 
   let title = `${c.subject} ${c.number}`;
 
@@ -76,15 +77,7 @@ const Course = () => {
               mr={3}
               onClick={onClose}
             >
-              Add to Fall 2019
-            </Button>
-            <Button
-              colorScheme="red"
-              variant="outline"
-              mr={3}
-              onClick={onClose}
-            >
-              Remove from Fall 2019
+              Close
             </Button>
           </ModalFooter>
         </ModalContent>

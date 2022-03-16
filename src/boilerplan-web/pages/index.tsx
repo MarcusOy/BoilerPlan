@@ -10,9 +10,17 @@ import Pane from "react-split-pane/lib/Pane";
 import Header from "../components/Header";
 import SemesterView from "../components/SemesterView";
 import RequirementsView from "../components/RequirementsView";
-import FlowView from "../components/FlowView";
+import CoursePickerView from "../components/CoursePickerView";
+import { useEffect } from "react";
+import CourseService from "../data/CourseService";
+import SemesterService from "../data/SemesterService";
 
 const Home: NextPage = () => {
+  useEffect(() => {
+    CourseService.loadCourses();
+    SemesterService.loadSemesters();
+  }, []);
+
   return (
     <>
       <Head>
@@ -23,21 +31,21 @@ const Home: NextPage = () => {
       <Stack height="100vh">
         <Header />
         <SplitPane
-          split="horizontal"
+          split="vertical"
           resizerStyle={{ background: "var(--🗿-colors-gray-600)" }}
         >
-          <Pane initialSize="55%">
-            <SplitPane split="vertical">
+          <Pane initialSize="75%">
+            <SplitPane split="horizontal">
               <Pane initialSize="80%">
-                <FlowView />
+                <SemesterView />
               </Pane>
               <Pane initialSize="25%" minSize="10%" maxSize="500px">
                 <RequirementsView />
               </Pane>
             </SplitPane>
           </Pane>
-          <Pane initialSize="45%">
-            <SemesterView />
+          <Pane initialSize="25%">
+            <CoursePickerView />
           </Pane>
         </SplitPane>
         ;

@@ -1,20 +1,24 @@
 import { Box, Heading, HStack, Stack } from "@chakra-ui/react";
-import Course from "./Course";
+import Course, { exampleCourse, ICourse } from "./Course";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DataStore } from "../data/Datastore";
+
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
 
 export interface ISemester {
   year: number;
   term: "Fall" | "Spring" | "Summer";
+  courses?: ICourse[];
 }
 
 const SemesterView = () => {
-  let startingYear = 2019;
-  let semesters: ISemester[] = [];
-
-  for (let x = 0; x < 4; x++) {
-    semesters.push({ year: startingYear + x, term: "Fall" });
-    semesters.push({ year: startingYear + x + 1, term: "Spring" });
-    semesters.push({ year: startingYear + x + 1, term: "Summer" });
-  }
+  const semesters = DataStore.useState((s) => s.semesters);
 
   return (
     <HStack h="100%" overflowX="scroll">
@@ -43,9 +47,9 @@ const SemesterView = () => {
                 borderColor: "gray.500",
               }}
             >
-              <Course />
-              <Course />
-              <Course />
+              <Course {...exampleCourse} />
+              <Course {...exampleCourse} />
+              <Course {...exampleCourse} />
             </Box>
           </Stack>
         );
